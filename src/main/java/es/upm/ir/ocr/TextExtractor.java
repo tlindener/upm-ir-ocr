@@ -6,6 +6,8 @@ import static org.bytedeco.javacpp.lept.pixRead;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.lept.PIX;
@@ -45,31 +47,41 @@ public class TextExtractor {
 	}
 
 	public static void processImage(File file, String exitFolder) throws Exception {
-		BytePointer outText;
-
 		PIX image = pixRead(file.getAbsolutePath());
-		api.SetImage(image);
-		// left;top;width;height
-		api.SetRectangle(150, 350, 1550, 2250);
 
-		// get output text from tesseract
-		outText = api.GetUTF8Text();
-		// from byte to actual string
-		String generatedText = outText.getString();
-
+		HashMap<String, String> generatedText = new HashMap<String, String>();
+		generatedText.put("Headline", getTextFromCoordinates(image, 1, 1, 1, 1));
+		generatedText.put("ColumnLeft", getTextFromCoordinates(image, 1, 1, 1, 1));
+		generatedText.put("ColumnRight", getTextFromCoordinates(image, 1, 1, 1, 1));
+		generatedText.put("Footer", getTextFromCoordinates(image, 1, 1, 1, 1));
 		String fileName = file.getName().split(".tif")[0];
-		System.out.println(generatedText);
 		createTextFile(generatedText, fileName, exitFolder);
 
-		outText.deallocate();
 		pixDestroy(image);
 	}
 
-	public static void createTextFile(String content, String fileName, String outputFolder) throws Exception {
+	public static void createTextFile(HashMap<String, String> generatedText, String fileName, String outputFolder)
+			throws Exception {
 		PrintWriter writer = new PrintWriter(outputFolder + "\\" + fileName + ".txt", "UTF-8");
-		writer.println(content);
+		for (Entry<String, String> item : generatedText.entrySet()) {
+			writer.println(item.getKey());
+			writer.println(item.getValue());
+		}
+
 		writer.close();
 		System.out.println("Successfully save recognized text");
+	}
+
+	private static String getTextFromCoordinates(PIX image, int left, int top, int width, int height) {
+		BytePointer outText;
+
+		api.SetImage(image);
+		// left;top;width;height
+		api.SetRectangle(left, top, width, height);
+		// get output text from tesseract
+		outText = api.GetUTF8Text();
+		outText.deallocate();
+		return outText.getString();
 	}
 
 }
