@@ -50,10 +50,9 @@ public class TextExtractor {
 		PIX image = pixRead(file.getAbsolutePath());
 
 		HashMap<String, String> generatedText = new HashMap<String, String>();
-		generatedText.put("Headline", getTextFromCoordinates(image, 1, 1, 1, 1));
-		generatedText.put("ColumnLeft", getTextFromCoordinates(image, 1, 1, 1, 1));
-		generatedText.put("ColumnRight", getTextFromCoordinates(image, 1, 1, 1, 1));
-		generatedText.put("Footer", getTextFromCoordinates(image, 1, 1, 1, 1));
+		generatedText.put("1: Headline", getTextFromCoordinates(image, 150, 330, 1550, 550));
+		generatedText.put("2: ColumnLeft", getTextFromCoordinates(image, 140, 950, 1040, 1974));
+		generatedText.put("3: ColumnRight", getTextFromCoordinates(image, 1185, 950, 1040, 1974));
 		String fileName = file.getName().split(".tif")[0];
 		createTextFile(generatedText, fileName, exitFolder);
 
