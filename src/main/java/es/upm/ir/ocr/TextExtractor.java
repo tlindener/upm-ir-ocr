@@ -27,16 +27,20 @@ public class TextExtractor {
 
 		String inputPath = null;
 		String outputPath = null;
+		//set default paths
 		if (args.length < 1) {
 			inputPath = "input";
 			outputPath = "output";
 		} else {
+			// set paths to cmd arguments if exists
 			inputPath = args[0];
 			outputPath = args[1];
 		}
+		//read all existing tiff files
 		File[] files = FileUtils.getAllFilesTifFiles(inputPath);
 		for (File f : files) {
 			try {
+				//for each image, process the image with tesseract
 				processImage(f, outputPath);
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
@@ -47,13 +51,15 @@ public class TextExtractor {
 	}
 
 	public static void processImage(File file, String exitFolder) throws Exception {
+		//load the image into memory
 		PIX image = pixRead(file.getAbsolutePath());
-
+		//extract text and insert into hashmap
 		HashMap<String, String> generatedText = new HashMap<String, String>();
 		generatedText.put("1: Headline", getTextFromCoordinates(image, 150, 330, 1550, 550));
 		generatedText.put("2: ColumnLeft", getTextFromCoordinates(image, 140, 950, 1040, 1974));
 		generatedText.put("3: ColumnRight", getTextFromCoordinates(image, 1185, 950, 1040, 1974));
 		String fileName = file.getName().split(".tif")[0];
+		//create text file from hashmap
 		createTextFile(generatedText, fileName, exitFolder);
 
 		pixDestroy(image);
